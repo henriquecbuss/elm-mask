@@ -1,6 +1,6 @@
 # NeoVier/elm-mask
 
-[![Build Status](https://travis-ci.org/NeoVier/elm-mask.svg?branch=master)](https://travis-ci.org/NeoVier/elm-mask)
+[![Build Status](https://github.com/NeoVier/elm-mask/workflows/CI/badge.svg)](https://github.com/NeoVier/elm-mask/actions?query=branch%3Amain) [![Elm package](https://img.shields.io/elm-package/v/NeoVier/elm-mask.svg)](https://package.elm-lang.org/packages/NeoVier/elm-mask/latest/)
 
 Mask `String`s to be used in input fields. Apply and remove masks so it's easy
 to use in your update and view functions!
