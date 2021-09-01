@@ -36,25 +36,17 @@ config =
     , NoUnused.Dependencies.rule
     , NoUnused.CustomTypeConstructorArgs.rule
 
-    --, NoUnused.Variables.rule
-    -- , NoUnused.CustomTypeConstructors.rule []
+    , NoUnused.Variables.rule
+    , NoUnused.CustomTypeConstructors.rule []
     , NoUnused.Parameters.rule
 
-    --, NoUnused.Patterns.rule
+    , NoUnused.Patterns.rule
     , NoDebug.Log.rule
     , NoDebug.TodoOrToString.rule
         |> Review.Rule.ignoreErrorsForDirectories [ "tests" ]
     , NoExposingEverything.rule
 
-    --, NoImportingEverything.rule []
     , NoMissingTypeAnnotation.rule
-
-    --, NoInconsistentAliases.config
-    --    [ ( "Html.Attributes", "Attr" )
-    --    , ( "Json.Decode", "Decode" )
-    --    , ( "Json.Encode", "Encode" )
-    --    ]
-    --    |> NoInconsistentAliases.noMissingAliases
-    --    |> NoInconsistentAliases.rule
     , NoModuleOnExposedNames.rule
     ]
+    |> List.map (Review.Rule.ignoreErrorsForDirectories ["tests/VerifyExamples"])
