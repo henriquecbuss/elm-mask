@@ -3,9 +3,15 @@ module Mask exposing
     , DecimalDigits(..), float, floatString
     )
 
-{-| Mask
+{-| This library helps you mask `String`s and `Float`s
+
+
+# Strings
 
 @docs string, remove
+
+
+# Floats
 
 @docs DecimalDigits, float, floatString
 
