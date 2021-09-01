@@ -1,7 +1,7 @@
 {
-  "name": "REPLACEME",
+  "name": "NeoVier/elm-mask",
   "version": "0.0.1",
-  "description": "REPLACEME",
+  "description": "Mask Strings to be used in input fields",
   "devDependencies": {
     "elm-review": "^2.3.3",
     "elm-test": "^0.19.1-revision4",
@@ -13,6 +13,6 @@
     "test": "elm-verify-examples --run-tests && elm-test",
     "postinstall": "elm-tooling install"
   },
-  "author": "REPLACEME",
+  "author": "NeoVier",
   "license": "BSD-3-Clause"
 }
