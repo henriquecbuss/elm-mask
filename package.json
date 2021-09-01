@@ -1,5 +1,5 @@
 {
-  "name": "NeoVier/elm-mask",
+  "name": "@neovier/elm-mask",
   "version": "0.0.1",
   "description": "Mask Strings to be used in input fields",
   "devDependencies": {
