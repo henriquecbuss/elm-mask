@@ -1,16 +1,43 @@
-# `replaceme` [![Build Status](https://github.com/replaceme/replaceme/workflows/CI/badge.svg)](https://github.com/replaceme/replaceme/actions?query=branch%3Amain)
+# NeoVier/elm-mask
 
-## What this repo includes
+[![Build Status](https://travis-ci.org/NeoVier/elm-mask.svg?branch=master)](https://travis-ci.org/NeoVier/elm-mask)
 
-| What                                                              | Why?                                                                                                                                                                                                          |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| lydell/elm-tooling.json                                           | Install dependencies, cache them for faster GitHub Actions builds.                                                                                                                                            |
-| elm-test                                                          | Basic unit testing boilerplate and runs on GitHub Actions.                                                                                                                                                    |
-| [`jfmengels/elm-review`](https://github.com/jfmengels/elm-review) | Statically analyzes your code to find unused code, etc.                                                                                                                                                       |
-| dillonkearns/elm-publish-action                                   | Publishes your package whenever you bump your package version in elm.json on your default branch (`main` or `master`). It won't publish 1.0.0 for you, but it will release subsequent versions automatically. |
+Mask `String`s to be used in input fields. Apply and remove masks so it's easy
+to use in your update and view functions!
 
-## Checklist
+See an [example in action on Ellie](https://ellie-app.com/f9Zdmvnfwxfa1).
 
-- [ ] Replace this with a nice readme (see this guide for designing Elm packages and writing nice docs/READMEs: <https://github.com/dillonkearns/idiomatic-elm-package-guide>)
-- [ ] Find all instances of replaceme in this repo and replace them
-- [ ] Publish version 1.0.0 (you have to start at V1 with Elm packages). Run `elm publish` from the root folder of this repo when you're all ready, and it will walk you through the process!
+See more end-to-end example code in the `examples/` folder.
+
+## Overview
+
+```elm
+Html.form []
+    [ Html.input
+        [ model.phoneNumber
+            -- You can also apply the mask on your `update` function
+            |> Mask.string { mask = "(##) #####-####", replace = '#' }
+            |> Html.Attributes.value
+        , Html.Events.onInput EnteredPhoneNumber
+        ]
+        []
+    , Html.input
+        [ model.price
+            |> Mask.float (Mask.Precisely 2)
+            |> Html.Attributes.value
+        , Html.Events.onInput EnteredExampleFloatInput
+        ]
+        []
+    ]
+```
+
+## Usage
+
+Just apply a mask on your input's `value`, and remove the mask before storing
+the value on your backend!
+
+## Learning Resources
+
+Feel free to ask for help on the [Elm Slack](https://elmlang.herokuapp.com/),
+in a channel or DMing me @Henrique Buss, any feedback is also welcome! And if
+you find any bugs, feel free to submit an issue!
