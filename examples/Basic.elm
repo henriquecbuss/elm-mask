@@ -50,25 +50,19 @@ view model =
         , Html.Attributes.style "min-height" "100vh"
         ]
         [ Html.input
-            [ model.exampleInput1
-                |> Mask.string mask
-                |> Html.Attributes.value
+            [ Html.Attributes.value model.exampleInput1
             , Html.Events.onInput EnteredExampleInput1
             , Html.Attributes.style "margin-bottom" "2rem"
             ]
             []
         , Html.input
-            [ model.exampleFloatInput
-                |> Mask.float (Mask.Precisely 2)
-                |> Html.Attributes.value
+            [ Html.Attributes.value model.exampleFloatInput
             , Html.Events.onInput EnteredExampleFloatInput
-            , Html.Attributes.id "bye"
             , Html.Attributes.style "margin-bottom" "2rem"
             ]
             []
         , Html.input
             [ Html.Attributes.value model.exampleFloatInput2
-            , Html.Attributes.id "hello"
             , Html.Events.onInput EnteredExampleFloatInput2
             ]
             []
@@ -79,7 +73,7 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         EnteredExampleInput1 val ->
-            { model | exampleInput1 = val }
+            { model | exampleInput1 = Mask.string mask val }
 
         EnteredExampleFloatInput val ->
             { model
@@ -87,6 +81,7 @@ update msg model =
                     val
                         |> String.toFloat
                         |> Maybe.withDefault model.exampleFloatInput
+                        |> Mask.float (Mask.Precisely 2)
             }
 
         EnteredExampleFloatInput2 val ->
