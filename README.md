@@ -5,7 +5,7 @@
 Mask `String`s to be used in input fields. Apply and remove masks so it's easy
 to use in your update and view functions!
 
-See an [example in action on Ellie](https://ellie-app.com/f9Zdmvnfwxfa1).
+See an [example in action on Ellie](https://ellie-app.com/fb4tGvBDjGBa1).
 
 See more end-to-end example code in the `examples/` folder.
 
