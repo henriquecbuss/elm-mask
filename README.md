@@ -5,7 +5,7 @@
 Mask `String`s to be used in input fields. Apply and remove masks so it's easy
 to use in your update and view functions!
 
-See an [example in action on Ellie](https://ellie-app.com/fb4tGvBDjGBa1).
+See an [example in action on Ellie](https://ellie-app.com/fjCBtqtVY8Ma1).
 
 See more end-to-end example code in the `examples/` folder.
 
@@ -24,6 +24,7 @@ Html.form []
     , Html.input
         [ model.price
             |> Mask.float (Mask.Precisely 2)
+                { decimalSeparator = ",", thousandsSeparator = "." }
             |> Html.Attributes.value
         , Html.Events.onInput EnteredExampleFloatInput
         ]

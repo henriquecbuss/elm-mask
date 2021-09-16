@@ -1,6 +1,7 @@
 module Mask exposing
     ( string, remove
     , DecimalDigits(..), float, floatString
+    , defaultSeparators, removeFloat, updateFloatString
     )
 
 {-| This library helps you mask `String`s and `Float`s
@@ -112,41 +113,45 @@ type DecimalDigits
 
 {-| Mask a float to have a certain amount of [`DecimalDigits`](#DecimalDigits).
 
-    float (Precisely 2) 123
-    --> "123.00"
+    float (Precisely 2) { decimalSeparator = ".", thousandsSeparator = "" } 1234
+    --> "1234.00"
 
-    float (Precisely 2) 123.4
-    --> "123.40"
+    float (Precisely 2) { decimalSeparator = ",", thousandsSeparator = " " } 1234.5
+    --> "1 234,50"
 
-    float (Precisely 2) 123.4567
-    --> "123.45"
+    float (Precisely 2) { decimalSeparator = ",", thousandsSeparator = "" } 123.4567
+    --> "123,45"
 
-    float (AtMost 2) 123
+    float (AtMost 2) { decimalSeparator = ".", thousandsSeparator = "," } 123
     --> "123"
 
-    float (AtMost 2) 123.4
+    float (AtMost 2) { decimalSeparator = ".", thousandsSeparator = "," } 123.4
     --> "123.4"
 
-    float (AtMost 2) 123.4567
+    float (AtMost 2) { decimalSeparator = ".", thousandsSeparator = "," } 123.4567
     --> "123.45"
 
 -}
-float : DecimalDigits -> Float -> String
-float decimalDigits value =
+float : DecimalDigits -> { decimalSeparator : String, thousandsSeparator : String } -> Float -> String
+float decimalDigits { decimalSeparator, thousandsSeparator } value =
     case value |> String.fromFloat |> String.split "." of
         [] ->
             -- IMPOSSIBLE CASE
             String.fromFloat value
 
         [ noSeparator ] ->
-            [ Just noSeparator, padFloat decimalDigits Nothing ]
+            [ Just (addThousandsSeparator thousandsSeparator noSeparator)
+            , padFloat decimalDigits Nothing
+            ]
                 |> List.filterMap identity
-                |> String.join "."
+                |> String.join decimalSeparator
 
         beforeSeparator :: afterSeparator :: _ ->
-            [ Just beforeSeparator, padFloat decimalDigits (Just afterSeparator) ]
+            [ Just (addThousandsSeparator thousandsSeparator beforeSeparator)
+            , padFloat decimalDigits (Just afterSeparator)
+            ]
                 |> List.filterMap identity
-                |> String.join "."
+                |> String.join decimalSeparator
 
 
 {-| Mask a float to have a certain amount of [`DecimalDigits`](#DecimalDigits),
@@ -155,14 +160,14 @@ but using a `String` as an input. This is useful for input fields, where the
 case the input `String` is not a valid `Float`, this function returns `Nothing`,
 and an empty `String` is automatically converted to `0`.
 
-    floatString (Precisely 2) "123.4"
-    --> Just "123.40"
+    floatString (Precisely 2) { decimalSeparator = ",", thousandsSeparator = " " } "1234.5"
+    --> Just "1 234,50"
 
-    floatString (Precisely 2) "12a.4"
+    floatString (Precisely 2) { decimalSeparator = ".", thousandsSeparator = "," } "12a.4"
     --> Nothing
 
-    floatString (Precisely 2) ""
-    --> Just "0.00"
+    floatString (Precisely 2) { decimalSeparator = ",", thousandsSeparator = "." } ""
+    --> Just "0,00"
 
 Usually you'll want to use this function in your `update` like this:
 
@@ -177,8 +182,8 @@ Usually you'll want to use this function in your `update` like this:
                 }
 
 -}
-floatString : DecimalDigits -> String -> Maybe String
-floatString decimalDigits value =
+floatString : DecimalDigits -> { decimalSeparator : String, thousandsSeparator : String } -> String -> Maybe String
+floatString decimalDigits separators value =
     let
         needsZeroDigits =
             case decimalDigits of
@@ -199,7 +204,7 @@ floatString decimalDigits value =
                 value
     in
     if String.isEmpty value then
-        float decimalDigits 0
+        float decimalDigits separators 0
             |> Just
 
     else
@@ -209,7 +214,7 @@ floatString decimalDigits value =
                 (\floatValue ->
                     let
                         formattedFloat =
-                            float decimalDigits floatValue
+                            float decimalDigits separators floatValue
                     in
                     case decimalDigits of
                         Precisely _ ->
@@ -217,11 +222,153 @@ floatString decimalDigits value =
 
                         AtMost n ->
                             if n > 0 && String.endsWith "." value then
-                                formattedFloat ++ "."
+                                formattedFloat ++ separators.decimalSeparator
 
                             else
                                 formattedFloat
                 )
+
+
+{-| A default value you can use for [`float`](#float) and [`floatString`](#floatString).
+-}
+defaultSeparators : { decimalSeparator : String, thousandsSeparator : String }
+defaultSeparators =
+    { decimalSeparator = ".", thousandsSeparator = "" }
+
+
+{-| Remove a mask applied by [`float`](#float) or [`floatString`](#floatString)
+
+    removeFloat { decimalSeparator = ",", thousandsSeparator = " " } "1 234,56"
+    --> "1234.56"
+
+-}
+removeFloat : { decimalSeparator : String, thousandsSeparator : String } -> String -> String
+removeFloat { decimalSeparator, thousandsSeparator } value =
+    value
+        |> String.replace thousandsSeparator ""
+        |> String.replace decimalSeparator "."
+
+
+{-| Update a masked value you store in your `Model`. This is useful to provide a
+better UX when using masked input fields. For more details, check out
+[this example on GitHub](https://github.com/NeoVier/elm-mask/tree/main/examples/WithHelper)
+or in this [Ellie link](https://ellie-app.com/fjCBtqtVY8Ma1), which uses a
+[custom element](https://guide.elm-lang.org/interop/custom_elements.html) to
+make it even better!
+-}
+updateFloatString : DecimalDigits -> { decimalSeparator : String, thousandsSeparator : String } -> { previousValue : String, newValue : String } -> String
+updateFloatString decimalDigits ({ decimalSeparator } as separators) { previousValue, newValue } =
+    let
+        decimalDigitsAmount =
+            case decimalDigits of
+                Precisely x ->
+                    x
+
+                AtMost x ->
+                    x
+
+        multiplyBy10 : String -> String
+        multiplyBy10 value =
+            case String.split "." value of
+                [ beforeSeparator ] ->
+                    if String.length beforeSeparator == 1 then
+                        "0." ++ String.repeat (decimalDigitsAmount - 1) "0" ++ beforeSeparator
+
+                    else
+                        beforeSeparator
+
+                [ beforeSeparator, afterSeparator ] ->
+                    if String.length afterSeparator > decimalDigitsAmount then
+                        [ beforeSeparator ++ String.left 1 afterSeparator
+                        , String.dropLeft 1 afterSeparator
+                        ]
+                            |> String.join "."
+
+                    else if String.length afterSeparator < decimalDigitsAmount then
+                        [ String.dropRight 1 beforeSeparator
+                        , String.right 1 beforeSeparator ++ afterSeparator
+                        ]
+                            |> String.join "."
+
+                    else
+                        value
+
+                _ ->
+                    value
+
+        removeZeroes : String -> String
+        removeZeroes value =
+            case String.toFloat previousValue of
+                Nothing ->
+                    value
+
+                Just floatValue ->
+                    if floatValue == 0 then
+                        case String.toFloat value of
+                            Nothing ->
+                                String.replace "0" "" value
+
+                            Just currentFloatValue ->
+                                if currentFloatValue >= 1 then
+                                    String.replace "0" "" value
+
+                                else
+                                    value
+
+                    else
+                        value
+
+        handleDeletingSeparator : String -> String
+        handleDeletingSeparator value =
+            if String.contains "." previousValue && not (String.contains "." newValue) then
+                case String.split decimalSeparator value of
+                    [ beforeSeparator, afterSeparator ] ->
+                        if String.endsWith (String.repeat decimalDigitsAmount "0") beforeSeparator then
+                            String.dropRight decimalDigitsAmount beforeSeparator ++ decimalSeparator ++ afterSeparator
+
+                        else
+                            beforeSeparator ++ decimalSeparator ++ afterSeparator
+
+                    _ ->
+                        -- IMPOSSIBLE CASE
+                        value
+
+            else
+                value
+    in
+    newValue
+        |> removeFloat separators
+        |> multiplyBy10
+        |> removeZeroes
+        |> floatString decimalDigits separators
+        |> Maybe.map handleDeletingSeparator
+        |> Maybe.withDefault previousValue
+
+
+{-| Adds a `separator` to a `value`. The `value` is the left side of a float
+string (without the decimal digits)
+-}
+addThousandsSeparator : String -> String -> String
+addThousandsSeparator separator value =
+    value
+        |> String.foldr
+            (\currentChar { currentCount, currentGroups, currentGroup } ->
+                if currentCount == 2 then
+                    { currentCount = 0
+                    , currentGroups = String.cons currentChar currentGroup :: currentGroups
+                    , currentGroup = ""
+                    }
+
+                else
+                    { currentCount = currentCount + 1
+                    , currentGroups = currentGroups
+                    , currentGroup = String.cons currentChar currentGroup
+                    }
+            )
+            { currentCount = 0, currentGroups = [], currentGroup = "" }
+        |> (\{ currentGroups, currentGroup } -> currentGroup :: currentGroups)
+        |> List.filter (not << String.isEmpty)
+        |> String.join separator
 
 
 {-| Add the necessary trailing `0`s to a float

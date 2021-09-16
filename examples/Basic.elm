@@ -28,7 +28,8 @@ init : Model
 init =
     { exampleInput1 = ""
     , exampleFloatInput = 0
-    , exampleFloatInput2 = Mask.floatString (Mask.AtMost 2) "" |> Maybe.withDefault "0"
+    , exampleFloatInput2 = Mask.floatString (Mask.AtMost 2) Mask.defaultSeparators ""
+        |> Maybe.withDefault "0"
     }
 
 
@@ -56,7 +57,9 @@ view model =
             ]
             []
         , Html.input
-            [ Html.Attributes.value model.exampleFloatInput
+            [ model.exampleFloatInput
+                |> Mask.float (Mask.Precisely 2) Mask.defaultSeparators
+                |> Html.Attributes.value
             , Html.Events.onInput EnteredExampleFloatInput
             , Html.Attributes.style "margin-bottom" "2rem"
             ]
@@ -81,14 +84,13 @@ update msg model =
                     val
                         |> String.toFloat
                         |> Maybe.withDefault model.exampleFloatInput
-                        |> Mask.float (Mask.Precisely 2)
             }
 
         EnteredExampleFloatInput2 val ->
             { model
                 | exampleFloatInput2 =
                     val
-                        |> Mask.floatString (Mask.AtMost 2)
+                        |> Mask.floatString (Mask.AtMost 2) Mask.defaultSeparators
                         |> Maybe.withDefault model.exampleFloatInput2
             }
 
