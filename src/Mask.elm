@@ -1,7 +1,6 @@
 module Mask exposing
     ( string, remove
-    , DecimalDigits(..), float, floatString
-    , defaultSeparators, removeFloat, updateFloatString
+    , DecimalDigits(..), float, floatString, removeFloat, defaultSeparators, updateFloatString
     )
 
 {-| This library helps you mask `String`s and `Float`s
@@ -14,7 +13,7 @@ module Mask exposing
 
 # Floats
 
-@docs DecimalDigits, float, floatString
+@docs DecimalDigits, float, floatString, removeFloat, defaultSeparators, updateFloatString
 
 -}
 
