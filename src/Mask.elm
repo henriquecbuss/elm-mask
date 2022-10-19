@@ -250,7 +250,7 @@ removeFloat { decimalSeparator, thousandsSeparator } value =
 
 {-| Update a masked value you store in your `Model`. This is useful to provide a
 better UX when using masked input fields. For more details, check out
-[this example on GitHub](https://github.com/NeoVier/elm-mask/tree/main/examples/WithHelper)
+[this example on GitHub](https://github.com/henriquecbuss/elm-mask/tree/main/examples/WithHelper)
 or in this [Ellie link](https://ellie-app.com/fjCBtqtVY8Ma1), which uses a
 [custom element](https://guide.elm-lang.org/interop/custom_elements.html) to
 make it even better!
